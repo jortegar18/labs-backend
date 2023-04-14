@@ -34,7 +34,11 @@ public class RoleController{
     }
 
     @GetMapping( value = { "/roles" } )
-    public List<Role> getAllRoles( ){
-        return roleService.getAll( );
+    public List<RolePOJO> getAllRoles( ){
+        List<RolePOJO> roles = new ArrayList<>( );
+        for (Role role: roleService.getAll( )){
+            roles.add( new RolePOJO( role ) );
+        }
+        return roles;
     }
 }

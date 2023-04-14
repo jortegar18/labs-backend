@@ -55,5 +55,4 @@ public class CourseController{
         }
         return enrolledCourses;
     }
-
 }
