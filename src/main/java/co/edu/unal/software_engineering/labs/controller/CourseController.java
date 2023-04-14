@@ -2,6 +2,7 @@ package co.edu.unal.software_engineering.labs.controller;
 
 import co.edu.unal.software_engineering.labs.model.Association;
 import co.edu.unal.software_engineering.labs.model.Course;
+import co.edu.unal.software_engineering.labs.model.Role;
 import co.edu.unal.software_engineering.labs.model.User;
 import co.edu.unal.software_engineering.labs.pojo.CoursePOJO;
 import co.edu.unal.software_engineering.labs.pojo.EnrolledCoursePOJO;
@@ -36,13 +37,20 @@ public class CourseController{
 
     @PostMapping( value = {"/profesor/crear-curso"} )
     public ResponseEntity<Void> createCourse( @RequestBody CoursePOJO coursePojo ){
-        Course course = courseService.mapperCourseEntity( coursePojo );
-        if( !courseService.isRightCourse( course ) ){
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User usuarioLogueado = userService.findByUsername(username);
+        List<Role> rolesUsuarioLogueado = usuarioLogueado.getRoles();
+
+        for(Role roles:rolesUsuarioLogueado){
+            if (roles.getRoleName().equals("Profesor")){
+                Course newCourse = courseService.mapperCourseEntity(coursePojo);
+                courseService.save(newCourse);
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            }
         }
-        courseService.save( course );
-        return new ResponseEntity<>( HttpStatus.CREATED );
-    }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
     @GetMapping( "/mis-cursos" )
     public List<EnrolledCoursePOJO> getCoursesByUser( ){
